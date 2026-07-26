@@ -1,5 +1,12 @@
 <Solution>
   <Folder Name="/docs/" />
-  <Folder Name="/src/" />
-  <Folder Name="/tests/" />
+  <Folder Name="/Solution Items/">
+    <File Path="Claude.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="RESTClientNet20.Library/RESTClientNet20.Library.csproj" Id="57cd25b3-c1c8-4480-a2f0-9a33e9cb5cd1" />
+  </Folder>
+  <Folder Name="/tests/">
+    <File Path="tests/Exemple.cs" />
+  </Folder>
 </Solution>
