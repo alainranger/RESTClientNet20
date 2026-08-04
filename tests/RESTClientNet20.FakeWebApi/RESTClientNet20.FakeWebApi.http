@@ -1,0 +1,6 @@
+@RESTClientNet20.FakeWebApi_HostAddress = http://localhost:5189
+
+GET {{RESTClientNet20.FakeWebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

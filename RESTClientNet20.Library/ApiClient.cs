@@ -219,7 +219,14 @@ namespace RESTClientNet20.Library
 
 					if (response.RawContent != null && response.RawContent.Length > 0)
 					{
-						response.Data = JsonConvert.DeserializeObject<T>(response.RawContent);
+						if (typeof(T) == typeof(string))
+						{
+							response.Data = (T)(object)response.RawContent;
+						}
+						else
+						{
+							response.Data = JsonConvert.DeserializeObject<T>(response.RawContent);
+						}
 					}
 				}
 				finally
