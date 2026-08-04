@@ -1,15 +1,16 @@
 <Solution>
   <Folder Name="/docs/" />
   <Folder Name="/Solution Items/">
+    <File Path="azure-pipelines.yml" />
     <File Path="Claude.md" />
   </Folder>
   <Folder Name="/src/">
-    <Project Path="RESTClientNet20.Library/RESTClientNet20.Library.csproj" Id="57cd25b3-c1c8-4480-a2f0-9a33e9cb5cd1" />
+    <Project Path="../../../../../../source/tests/RESTClientNet20/RESTClientNet20.Library/RESTClientNet20.Library.csproj" Id="57cd25b3-c1c8-4480-a2f0-9a33e9cb5cd1" />
   </Folder>
   <Folder Name="/tests/">
     <File Path="tests/Exemple.cs" />
     <File Path="tests/run-test.ps1" />
-    <Project Path="tests/RESTClientNet20.FakeWebApi/RESTClientNet20.FakeWebApi.csproj" Id="845e4c46-d66c-4654-8989-9587e78dc138" />
-    <Project Path="tests/RESTClientNet20.Tests/RESTClientNet20.Tests.csproj" Id="354a4032-d63f-4e9d-974c-b8e2629e5f26" />
+    <Project Path="../../../../../../source/tests/RESTClientNet20/tests/RESTClientNet20.FakeWebApi/RESTClientNet20.FakeWebApi.csproj" Id="845e4c46-d66c-4654-8989-9587e78dc138" />
+    <Project Path="../../../../../../source/tests/RESTClientNet20/tests/RESTClientNet20.Tests/RESTClientNet20.Tests.csproj" Id="354a4032-d63f-4e9d-974c-b8e2629e5f26" />
   </Folder>
 </Solution>
