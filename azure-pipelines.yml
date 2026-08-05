@@ -1,0 +1,141 @@
+trigger:
+  - main
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  buildConfiguration: 'Release'
+  fakeApiUrl: 'http://localhost:5000'
+  outputPublishDir: '$(Build.ArtifactStagingDirectory)/FakeWebApi'
+
+stages:
+  - stage: Build
+    displayName: 'Build'
+    jobs:
+      - job: BuildAndTest
+        displayName: 'Build & Test'
+        steps:
+
+          # ── .NET 10 SDK (FakeWebApi) ────────────────────────────────────────
+          - task: UseDotNet@2
+            displayName: 'Use .NET 10 SDK'
+            inputs:
+              packageType: 'sdk'
+              version: '10.x'
+
+          # ── NuGet (Library + Tests ciblant .NET Framework 2.0) ─────────────
+          - task: NuGetToolInstaller@1
+            displayName: 'Install NuGet'
+
+          - task: NuGetCommand@2
+            displayName: 'Restore RESTClientNet20.Library'
+            inputs:
+              command: 'restore'
+              restoreSolution: 'RESTClientNet20.Library/RESTClientNet20.Library.csproj'
+              feedsToUse: 'select'
+
+          - task: NuGetCommand@2
+            displayName: 'Restore RESTClientNet20.Tests'
+            inputs:
+              command: 'restore'
+              restoreSolution: 'tests/RESTClientNet20.Tests/RESTClientNet20.Tests.csproj'
+              feedsToUse: 'select'
+
+          # ── Build .NET Framework 2.0 projects via MSBuild ──────────────────
+          - task: VSBuild@1
+            displayName: 'Build Library (.NET Framework 2.0)'
+            inputs:
+              solution: 'RESTClientNet20.Library/RESTClientNet20.Library.csproj'
+              configuration: '$(buildConfiguration)'
+
+          - task: VSBuild@1
+            displayName: 'Build Tests (.NET Framework 2.0)'
+            inputs:
+              solution: 'tests/RESTClientNet20.Tests/RESTClientNet20.Tests.csproj'
+              configuration: '$(buildConfiguration)'
+
+          # ── Build & publish FakeWebApi (.NET 10) ───────────────────────────
+          - task: DotNetCoreCLI@2
+            displayName: 'Restore FakeWebApi'
+            inputs:
+              command: 'restore'
+              projects: 'tests/RESTClientNet20.FakeWebApi/RESTClientNet20.FakeWebApi.csproj'
+
+          - task: DotNetCoreCLI@2
+            displayName: 'Publish FakeWebApi'
+            inputs:
+              command: 'publish'
+              projects: 'tests/RESTClientNet20.FakeWebApi/RESTClientNet20.FakeWebApi.csproj'
+              arguments: >
+                --configuration $(buildConfiguration)
+                --output $(outputPublishDir)
+              publishWebProjects: false
+              zipAfterPublish: false
+
+          # ── Démarrer FakeWebApi en arrière-plan ────────────────────────────
+          - task: PowerShell@2
+            displayName: 'Start FakeWebApi (background)'
+            inputs:
+              targetType: 'inline'
+              script: |
+                $dll = Join-Path "$(outputPublishDir)" 'RESTClientNet20.FakeWebApi\RESTClientNet20.FakeWebApi.dll'
+                $logFile = Join-Path "$(Agent.TempDirectory)" 'fakeapi.log'
+                $errFile = "$logFile.err"
+
+                if (-not (Test-Path $dll)) {
+                  Write-Host "##[error] FakeWebApi DLL not found: $dll"
+                  Get-ChildItem (Join-Path "$(Build.ArtifactStagingDirectory)" 'FakeWebApi') -ErrorAction SilentlyContinue | Format-Table Name,Length,LastWriteTime -AutoSize
+                  exit 1
+                }
+
+                Start-Process `
+                  -FilePath "dotnet" `
+                  -ArgumentList @($dll, '--urls', '$(fakeApiUrl)') `
+                  -NoNewWindow `
+                  -RedirectStandardOutput $logFile `
+                  -RedirectStandardError $errFile
+
+                # Attendre que l'API soit prête (max 30 secondes)
+                $ready = $false
+                for ($i = 0; $i -lt 30; $i++) {
+                  Start-Sleep -Seconds 1
+                  try {
+                    Write-Host "##[info] Attente de $(fakeApiUrl)/health."
+                    $r = Invoke-WebRequest -Uri "$(fakeApiUrl)/health" -UseBasicParsing -ErrorAction Stop
+                    if ($r.StatusCode -eq 200) { $ready = $true; break }
+                  } catch { 
+                    Write-Host "Erreur inattendue : $_.Exception.Message" -ForegroundColor Red
+                  }
+                }
+
+                if (-not $ready) {
+                  Write-Host "##[warning] FakeWebApi n'a pas démarré dans les délais."
+                  Get-Content $logFile -ErrorAction SilentlyContinue
+                  Get-Content $errFile -ErrorAction SilentlyContinue
+                  exit 1
+                }
+
+                Write-Host "FakeWebApi démarrée sur $(fakeApiUrl)"
+
+          # ── Exécuter les tests NUnit ────────────────────────────────────────
+          - task: VSTest@2
+            displayName: 'Run NUnit Tests'
+            inputs:
+              testSelector: 'testAssemblies'
+              testAssemblyVer2: |
+                tests\RESTClientNet20.Tests\bin\$(buildConfiguration)\RESTClientNet20.Tests.dll
+              searchFolder: '$(System.DefaultWorkingDirectory)'
+              platform: 'AnyCPU'
+              configuration: '$(buildConfiguration)'
+              testRunTitle: 'RESTClientNet20 – NUnit Tests'
+              publishRunAttachments: true
+
+          # ── Publier les artefacts de build ─────────────────────────────────
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish build artifacts'
+            condition: always()
+            inputs:
+              PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+              ArtifactName: 'drop'
+              publishLocation: 'Container'
