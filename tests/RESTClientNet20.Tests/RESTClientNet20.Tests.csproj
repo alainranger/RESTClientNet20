@@ -50,7 +50,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\RESTClientNet20.Library\RESTClientNet20.Library.csproj">
+    <ProjectReference Include="..\..\src\RESTClientNet20.Library\RESTClientNet20.Library.csproj">
       <Project>{57cd25b3-c1c8-4480-a2f0-9a33e9cb5cd1}</Project>
       <Name>RESTClientNet20.Library</Name>
     </ProjectReference>
