@@ -32,7 +32,7 @@ stages:
             displayName: 'Restore RESTClientNet20.Library'
             inputs:
               command: 'restore'
-              restoreSolution: 'RESTClientNet20.Library/RESTClientNet20.Library.csproj'
+              restoreSolution: 'src/RESTClientNet20.Library/RESTClientNet20.Library.csproj'
               feedsToUse: 'select'
 
           - task: NuGetCommand@2
