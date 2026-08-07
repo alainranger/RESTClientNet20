@@ -36,9 +36,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CircuitBreakerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RestClientTests.cs" />
-    <Compile Include="TestSettings.cs" />
+    <Compile Include="RetryPolicyTests.cs" />
+    <Compile Include="Models\TestHttpRequest.cs" />
+    <Compile Include="Models\TestHttpResponse.cs" />
+    <Compile Include="Utils\TestHttpServer.cs" />
+    <Compile Include="Models\TestPayload.cs" />
     <Compile Include="WeatherForecast.cs" />
   </ItemGroup>
   <ItemGroup>
