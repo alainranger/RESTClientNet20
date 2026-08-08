@@ -36,9 +36,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ApiClient.cs" />
-    <Compile Include="ApiResilience.cs" />
-    <Compile Include="ApiResponse.cs" />
+    <Compile Include="ApiClient\ApiClient.cs" />
+    <Compile Include="ApiClient\HttpMethodType.cs" />
+    <Compile Include="ApiResilience\Exceptions\CircuitBreakerOpenException.cs" />
+    <Compile Include="ApiResilience\CircuitBreaker.cs" />
+    <Compile Include="ApiResilience\CircuitBreakerState.cs" />
+    <Compile Include="ApiResilience\RetryPolicy.cs" />
+    <Compile Include="ApiClient\ApiResponse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

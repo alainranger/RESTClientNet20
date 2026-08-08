@@ -101,13 +101,13 @@ namespace RESTClientNet20.Tests.Utils
 		private TestHttpRequest ReadRequest(NetworkStream stream)
 		{
 			StreamReader reader = new StreamReader(stream, Encoding.UTF8);
-			string requestLine = reader.ReadLine();
+			var requestLine = reader.ReadLine();
 			if (requestLine == null)
 			{
 				return null;
 			}
 
-			string[] parts = requestLine.Split(' ');
+			var parts = requestLine.Split(' ');
 			TestHttpRequest request = new TestHttpRequest
 			{
 				Method = parts.Length > 0 ? parts[0] : string.Empty,
@@ -115,22 +115,22 @@ namespace RESTClientNet20.Tests.Utils
 				Headers = new WebHeaderCollection()
 			};
 
-			string line = reader.ReadLine();
+			var line = reader.ReadLine();
 			while (line != null && line.Length > 0)
 			{
-				int separatorIndex = line.IndexOf(':');
+				var separatorIndex = line.IndexOf(':');
 				if (separatorIndex > 0)
 				{
-					string name = line.Substring(0, separatorIndex).Trim();
-					string value = line.Substring(separatorIndex + 1).Trim();
+					var name = line.Substring(0, separatorIndex).Trim();
+					var value = line.Substring(separatorIndex + 1).Trim();
 					request.Headers.Add(name, value);
 				}
 
 				line = reader.ReadLine();
 			}
 
-			int contentLength = 0;
-			string contentLengthValue = request.Headers["Content-Length"];
+			var contentLength = 0;
+			var contentLengthValue = request.Headers["Content-Length"];
 			if (contentLengthValue != null)
 			{
 				int.TryParse(contentLengthValue, out contentLength);
@@ -138,18 +138,18 @@ namespace RESTClientNet20.Tests.Utils
 
 			if (string.Compare(request.Headers["Expect"], "100-continue", true) == 0)
 			{
-				byte[] continueBytes = Encoding.ASCII.GetBytes("HTTP/1.1 100 Continue\r\n\r\n");
+				var continueBytes = Encoding.ASCII.GetBytes("HTTP/1.1 100 Continue\r\n\r\n");
 				stream.Write(continueBytes, 0, continueBytes.Length);
 				stream.Flush();
 			}
 
 			if (contentLength > 0)
 			{
-				char[] buffer = new char[contentLength];
-				int totalRead = 0;
+				var buffer = new char[contentLength];
+				var totalRead = 0;
 				while (totalRead < contentLength)
 				{
-					int read = reader.Read(buffer, totalRead, contentLength - totalRead);
+					var read = reader.Read(buffer, totalRead, contentLength - totalRead);
 					if (read <= 0)
 					{
 						break;
@@ -170,14 +170,14 @@ namespace RESTClientNet20.Tests.Utils
 
 		private void WriteResponse(NetworkStream stream, TestHttpResponse response)
 		{
-			string body = response.Body ?? string.Empty;
-			byte[] bodyBytes = Encoding.UTF8.GetBytes(body);
-			string headers = "HTTP/1.1 " + response.StatusCode + " " + GetReasonPhrase(response.StatusCode) + "\r\n"
+			var body = response.Body ?? string.Empty;
+			var bodyBytes = Encoding.UTF8.GetBytes(body);
+			var headers = "HTTP/1.1 " + response.StatusCode + " " + GetReasonPhrase(response.StatusCode) + "\r\n"
 				+ "Content-Type: " + response.ContentType + "\r\n"
 				+ "Content-Length: " + bodyBytes.Length + "\r\n"
 				+ "Connection: close\r\n"
 				+ "\r\n";
-			byte[] headerBytes = Encoding.ASCII.GetBytes(headers);
+			var headerBytes = Encoding.ASCII.GetBytes(headers);
 
 			stream.Write(headerBytes, 0, headerBytes.Length);
 			if (bodyBytes.Length > 0)

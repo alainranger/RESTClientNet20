@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
 
-using RESTClientNet20.Library;
+using RESTClientNet20.Library.ApiResilience;
 
 namespace RESTClientNet20.Tests
 {
