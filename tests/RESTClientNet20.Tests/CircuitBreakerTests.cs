@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 
-using RESTClientNet20.Library;
+using RESTClientNet20.Library.ApiResilience;
+using RESTClientNet20.Library.ApiResilience.Exceptions;
 
 using System;
 using System.Threading;
